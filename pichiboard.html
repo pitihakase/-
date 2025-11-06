@@ -36,7 +36,7 @@
     <header>
       <div>
         <h1>ぴちボード（匿名ログイン・リアルタイム）</h1>
-        <div class="muted">初回アクセスで匿名ログイン。<b>自分の投稿だけ</b>編集/削除できます。</div>
+        <div class="muted">初回アクセスで匿名ログイン。<b>誰でも削除可（駅ボード仕様）</b>／編集は本人のみ。</div>
       </div>
       <div class="pill" id="user-pill">UID: <span id="uid">(未ログイン)</span></div>
     </header>
@@ -185,8 +185,11 @@
         <div class="controls"></div>
       `;
       const ctl = el.querySelector('.controls');
-      if (currentUser && currentUser.uid === data.uid){
-        ctl.append(button('編集', ()=> startEdit(id, data)), button('削除', ()=> delPost(id)));
+      if (currentUser){
+        if (currentUser.uid === data.uid){
+          ctl.append(button('編集', ()=> startEdit(id, data)));
+        }
+        ctl.append(button('削除', ()=> delPost(id)));
       }
       return el;
     }
@@ -227,7 +230,8 @@
                       && request.resource.data.text.size() <= 2000
                       && request.resource.data.uid == request.auth.uid
                       && request.resource.data.createdAt != null;
-        allow update, delete: if request.auth != null && request.auth.uid == resource.data.uid;
+        allow update: if request.auth != null && request.auth.uid == resource.data.uid;
+        allow delete: if request.auth != null;
       }
     }
   }
